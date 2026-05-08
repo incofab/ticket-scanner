@@ -6,6 +6,7 @@ import 'package:ticket_scanner/controllers/scanner_screen.dart';
 import 'package:ticket_scanner/dialogs/message_dialog.dart';
 import 'package:ticket_scanner/layout/page_layout.dart';
 import 'package:ticket_scanner/models/event.dart';
+import 'package:ticket_scanner/models/ticket_verification.dart';
 import 'package:ticket_scanner/util/helpers.dart';
 
 class ShowEventPage extends StatefulWidget {
@@ -93,11 +94,11 @@ class _ShowEventPageState extends State<ShowEventPage> {
     }
 
     final title = res['title'] ?? 'Something Went Wrong';
-    final message = res['message'] ??
-        'Couldn’t verify ticket. Please check your connection or try again.';
+    final message =
+        res['message'] ?? "Couldn't verify ticket. Please check your connection or try again.";
     final slug = res['slug'] ?? 'error';
 
-    _showMessage(context, title, message);
+    _showMessage(context, title, message, res['data'] ?? null);
 
     // if (slug == VerifyTicket.SLUG_VERIFIED) {
     //   _showMessage(context, 'Verification Successful',
@@ -117,14 +118,16 @@ class _ShowEventPageState extends State<ShowEventPage> {
     // }
   }
 
-  void _showMessage(BuildContext context, String title, String message) {
-    showDialog(
-      context: context,
-      builder: (context) => MessageDialog(
-        title,
-        message,
-        () {},
-      ),
+  void _showMessage(
+    BuildContext context,
+    String title,
+    String message,
+    TicketVerification? ticketVerification,
+  ) {
+    Get.dialog(
+      ticketVerification == null
+          ? MessageDialog(title, message, () {})
+          : _ShowTicket(ticketVerification),
     );
   }
 
@@ -189,6 +192,38 @@ class _ShowEventPageState extends State<ShowEventPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ShowTicket extends StatelessWidget {
+  final TicketVerification ticketVerification;
+  const _ShowTicket(this.ticketVerification);
+
+  @override
+  Widget build(BuildContext context) {
+    var details = [
+      {'label': 'Event', 'value': ticketVerification.ticket?.eventPackage?.event?.title ?? ''},
+      {'label': 'Package', 'value': ticketVerification.ticket?.eventPackage?.title ?? ''},
+      {'label': 'Seat', 'value': ticketVerification.ticket?.seat?.seat_no ?? ''},
+      {'label': 'Section', 'value': ticketVerification.ticket?.seat?.seatSection?.title ?? ''},
+      {'label': 'User', 'value': ticketVerification.ticket?.ticketPayment?.name ?? ''},
+      {'label': 'Email', 'value': ticketVerification.ticket?.ticketPayment?.email ?? ''},
+      {'label': 'Phone', 'value': ticketVerification.ticket?.ticketPayment?.phone ?? ''},
+    ];
+    return Column(
+      children: details
+          .map((item) => Row(
+                children: [
+                  SizedBox(
+                    width: 100,
+                    child: Text(item['label']!),
+                  ),
+                  const SizedBox(width: 5),
+                  Text(item['value'] ?? ''),
+                ],
+              ))
+          .toList(),
     );
   }
 }

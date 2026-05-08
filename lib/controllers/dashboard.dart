@@ -107,7 +107,7 @@ class _EventCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             spreadRadius: 2,
             blurRadius: 3,
             offset: const Offset(0, 3), // changes position of shadow
@@ -138,8 +138,7 @@ class _EventCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           event.title,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ),
                       event.start_time != null
